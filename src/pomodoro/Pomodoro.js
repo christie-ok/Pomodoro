@@ -79,7 +79,7 @@ function Pomodoro() {
     }
     return setSession(nextTick);
   },
-  isTimerRunning ? 1000 : null
+  isTimerRunning ? 100 : null
 );
 
 /**
@@ -89,24 +89,47 @@ function playPause() {
   setIsTimerRunning((prevState) => {
     const nextState = !prevState;
     if (nextState) {
-      setSession({
+      setSession((session) => {
+        return {
         ...session,
             label: "Focusing",
             timeRemaining: session.focusDuration * 60,
           }
-      );
+        });
     }
     return nextState;
   });
 }
 
-  const focusMinusClickHandler = () => setSession({...session, focusDuration: Math.max(5, (session.focusDuration - 5))});
-  
-  const breakMinusClickHandler = () => setSession({...session, breakDuration: Math.max(1, (session.breakDuration - 1))});
-  
-  const focusPlusClickHandler = () => setSession({...session, focusDuration: Math.min(60, (session.focusDuration + 5))});
-  
-  const breakPlusClickHandler = () => setSession({...session, breakDuration: Math.min(15, (session.breakDuration + 1))});
+const focusClickHandler = ({target}) => { 
+  setSession((session) => { 
+  if (target.id === "plus") { 
+    return { 
+      ...session,
+      focusDuration: Math.min(60, (session.focusDuration + 5)) 
+    } 
+  } 
+  return { 
+    ...session, 
+    focusDuration: Math.max(5, (session.focusDuration - 5)) 
+  } 
+}) 
+};
+
+const breakClickHandler = ({target}) => { 
+  setSession((session) => { 
+    if (target.id === "plus") { 
+      return { 
+        ...session, 
+        breakDuration: Math.min(15, (session.breakDuration + 1)) 
+      } 
+    }
+ return { 
+   ...session, 
+   breakDuration: Math.max(1, (session.breakDuration - 1)) 
+  }
+ }) 
+}
   
   const stopClickHandler = () => {
     setSession({...initialSession});
@@ -118,7 +141,7 @@ function playPause() {
 
   return (
     <div>
-      <TimerAdjust isTimerRunning={isTimerRunning} session={session} playPause={playPause} focusMinusClickHandler={focusMinusClickHandler} breakMinusClickHandler={breakMinusClickHandler} focusPlusClickHandler={focusPlusClickHandler} breakPlusClickHandler={breakPlusClickHandler} stopClickHandler={stopClickHandler} />
+      <TimerAdjust isTimerRunning={isTimerRunning} session={session} playPause={playPause} focusClickHandler={focusClickHandler} breakClickHandler={breakClickHandler} stopClickHandler={stopClickHandler} />
       <Countdown session={session} isTimerRunning={isTimerRunning} />
     </div>
   );
